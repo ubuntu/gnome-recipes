@@ -1,0 +1,78 @@
+name: gnome-recipes
+version: 1.6.2
+summary: GNOME loves to cook
+description: |
+  Recipes is an easy-to-use application that will help you to discover what to cook
+  today, tomorrow, the rest of the week and for your special occasions.
+
+  Recipes comes with a collection of recipes that have been collected by GNOME contributors
+  from all over the world. It also lets you store your own recipes and share them with your
+  friends.
+
+  The major features of Recipes include:
+    * Add and edit your own recipes
+    * Share recipes with your friends
+    * Export and print shopping lists
+    * Adjust quantities based on the number of servings
+    * Mark recipes to cook later or add them to your favorites
+    * Add notes to recipes
+    * Hands-free cooking instruction mode
+
+grade: stable # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+plugs:
+    gnome-3-26-1604:
+      interface: content
+      target: $SNAP/gnome-platform
+      default-provider: gnome-3-26-1604:gnome-3-26-1604
+
+slots:
+  # for GtkApplication registration
+  gnome-recipes:
+    interface: dbus
+    bus: session
+    name: org.gnome.Recipes
+
+apps:
+  gnome-recipes:
+    command: desktop-launch gnome-recipes
+    plugs:
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - home
+      - network
+      - unity7
+      - wayland
+    desktop: usr/share/applications/org.gnome.Recipes.desktop
+
+parts:
+  gnome-recipes:
+    build-attributes: [no-system-libraries]
+    after: [desktop-gnome-platform]
+    source: https://git.gnome.org/browse/recipes
+    source-type: git
+    source-tag: 1.6.2
+    prepare:
+      sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
+    install: |
+      mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
+      cp ../src/data/icons/512x512/org.gnome.Recipes.png $SNAPCRAFT_PART_INSTALL/meta/gui/
+      cp snapbuild/data/org.gnome.Recipes.desktop $SNAPCRAFT_PART_INSTALL/meta/gui/
+    plugin: meson
+    meson-parameters: [--prefix=/usr]
+    organize:
+      snap/recipes/current/usr: usr
+    build-packages:
+      - appstream-util
+      - gnome-pkg-tools
+      - itstool
+      - libcanberra-dev
+      - libgirepository1.0-dev
+      - libgspell-1-dev
+      - libgtk-3-dev
+      - libsoup-gnome2.4-dev
+      - meson
+      - pkg-config
+
