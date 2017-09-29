@@ -54,8 +54,9 @@ parts:
     source: https://git.gnome.org/browse/recipes
     source-type: git
     source-tag: 1.6.2
-    prepare:
+    prepare: |
       sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
+      sed -i.bak -e 's|\])$|\], symlink_media: false)|g' help/meson.build
     install: |
       mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
       cp ../src/data/icons/512x512/org.gnome.Recipes.png $SNAPCRAFT_PART_INSTALL/meta/gui/
