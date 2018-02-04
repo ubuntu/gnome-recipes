@@ -80,6 +80,7 @@ parts:
       - libgnome-autoar-0-dev
       - libgoa-1.0-dev
       - pkg-config
+      - libjson-glib-dev
   libraries:
     plugin: nil
     stage-packages:
