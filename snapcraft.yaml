@@ -78,6 +78,7 @@ parts:
       - libgtk-3-dev
       - libsoup-gnome2.4-dev
       - libgnome-autoar-0-dev
+      - libgoa-1.0-dev
       - pkg-config
   libraries:
     plugin: nil
