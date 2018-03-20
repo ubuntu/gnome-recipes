@@ -86,6 +86,8 @@ parts:
     stage-packages:
       - libgnome-autoar-0-0
       - libarchive13
+      - libgoa-1.0-0b
     prime:
       - "usr/lib/*/libgnome-autoar-0.so*"
       - "usr/lib/*/libarchive.so*"
+      - "usr/lib/*/libgoa-1.0.so*"
