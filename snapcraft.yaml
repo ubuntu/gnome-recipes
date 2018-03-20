@@ -1,5 +1,5 @@
 name: gnome-recipes
-version: 1.6.2
+version: 2.0.2
 summary: GNOME loves to cook
 description: |
   Recipes is an easy-to-use application that will help you to discover what to cook
@@ -54,7 +54,7 @@ parts:
     after: [desktop-gnome-platform]
     source: https://git.gnome.org/browse/recipes
     source-type: git
-    #source-tag: 1.6.2
+    source-tag: 2.0.2
     prepare: |
       sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
       sed -i.bak -e 's|\])$|\], symlink_media: false)|g' help/meson.build
