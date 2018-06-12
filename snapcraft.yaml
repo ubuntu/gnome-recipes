@@ -66,7 +66,7 @@ parts:
   gnome-recipes:
     build-attributes: [no-system-libraries]
     after: [desktop-gnome-platform]
-    source: https://git.gnome.org/browse/recipes
+    source: https://gitlab.gnome.org/GNOME/recipes.git
     source-type: git
     source-tag: 1.6.2
     override-build: |
