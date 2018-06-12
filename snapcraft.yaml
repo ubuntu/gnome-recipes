@@ -26,17 +26,17 @@ plugs:
     interface: content
     target: $SNAP/gnome-platform
     default-provider: gnome-3-26-1604
-  gtk3-themes:
+  gtk-3-themes:
     interface: content
-    target: $SNAP/usr/share/themes
+    target: $SNAP/data-dir/themes
     default-provider: gtk-common-themes
   icon-themes:
     interface: content
-    target: $SNAP/usr/share/icons
+    target: $SNAP/data-dir/icons
     default-provider: gtk-common-themes
   sound-themes:
     interface: content
-    target: $SNAP/usr/share/sounds
+    target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes
 
 slots:
@@ -69,12 +69,12 @@ parts:
     source: https://git.gnome.org/browse/recipes
     source-type: git
     source-tag: 1.6.2
-    prepare: |
+    override-build: |
       sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
       sed -i.bak -e 's|\])$|\], symlink_media: false)|g' help/meson.build
       sed -i.bak -e 's|DATADIR|"/snap/gnome-recipes/current/usr/share"|g' src/gr-appdata.c
       #sed -i.bak -e 's|.flatpak-info|meta/snap.yaml|g' src/gr-utils.c
-    install: |
+      snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
       cp ../src/data/icons/512x512/org.gnome.Recipes.png $SNAPCRAFT_PART_INSTALL/meta/gui/
       cp snapbuild/data/org.gnome.Recipes.desktop $SNAPCRAFT_PART_INSTALL/meta/gui/
