@@ -61,9 +61,13 @@ apps:
 parts:
   gnome-recipes:
     after: [desktop-gnome-platform]
-    source: https://gitlab.gnome.org/GNOME/recipes.git
-    source-type: git
-    source-tag: 2.0.2
+    # temporarily switch to tarball since gitsubmodule URL for 2.0.2
+    # no longer works
+    # source: https://gitlab.gnome.org/GNOME/recipes.git
+    # source-type: git
+    # source-tag: 2.0.2
+    source: https://download.gnome.org/sources/gnome-recipes/2.0/gnome-recipes-2.0.2.tar.xz
+    source-type: tar
     override-build: |
       sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
       sed -i.bak -e 's|\])$|\], symlink_media: false)|g' help/meson.build
