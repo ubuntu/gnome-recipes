@@ -20,6 +20,7 @@ description: |
 
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict
+base: core18
 
 plugs:
   gnome-3-28-1804:
@@ -54,13 +55,50 @@ apps:
       - home
       - mount-observe
       - network
+      - pulseaudio
+      - screen-inhibit-control
       - unity7
       - wayland
     desktop: usr/share/applications/org.gnome.Recipes.desktop
 
 parts:
+  libcanberra:
+    source: git://git.0pointer.de/libcanberra
+    source-type: git
+    plugin: autotools
+    configflags:
+      - --prefix=/snap/gnome-recipes/current/usr
+      - --enable-pulse
+      - --enable-gstreamer
+      - --enable-gtk3
+      - --enable-alsa
+      - --disable-oss
+    organize:
+      snap/gnome-recipes/current/usr: usr
+    build-packages:
+      - libltdl-dev
+      - libasound2-dev
+      - libvorbis-dev
+      - libgtk-3-dev
+      - libtdb-dev
+      - libpulse-dev
+      - libgstreamer1.0-dev
+      - gtk-doc-tools
+
+  desktop-gnome-platform:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: gtk
+    plugin: make
+    make-parameters: ["FLAVOR=gtk3"]
+    build-packages:
+      - build-essential
+      - libgtk-3-dev
+    override-build: |
+      snapcraftctl build
+      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
+
   gnome-recipes:
-    after: [desktop-gnome-platform]
+    after: [desktop-gnome-platform, libcanberra]
     # temporarily switch to tarball since gitsubmodule URL for 2.0.2
     # no longer works
     # source: https://gitlab.gnome.org/GNOME/recipes.git
@@ -76,26 +114,31 @@ parts:
       snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
       cp ../src/data/icons/512x512/org.gnome.Recipes.png $SNAPCRAFT_PART_INSTALL/meta/gui/
-      cp ../install/usr/share/applications/org.gnome.Recipes.desktop $SNAPCRAFT_PART_INSTALL/meta/gui/
+      cp ../install/snap/gnome-recipes/current/usr/share/applications/org.gnome.Recipes.desktop $SNAPCRAFT_PART_INSTALL/meta/gui/
     plugin: meson
-    meson-parameters: [--prefix=/usr, -Dautoar=yes]
+    meson-parameters: [--prefix=/snap/gnome-recipes/current/usr, -Dautoar=yes]
     organize:
-      snap/recipes/current/usr: usr
+      snap/gnome-recipes/current/usr: usr
     build-packages:
       - gettext
       - itstool
       - libcanberra-dev
       - libgirepository1.0-dev
       - libgspell-1-dev
+      - libgoa-1.0-dev
       - libgtk-3-dev
       - libsoup-gnome2.4-dev
       - libgnome-autoar-0-dev
       - libjson-glib-dev
+      - libxml2-utils
   libraries:
     plugin: nil
     stage-packages:
+      - iso-codes
       - libgnome-autoar-0-0
+      - libgoa-1.0-0b
       - libarchive13
     prime:
       - "usr/lib/*/libgnome-autoar-0.so*"
+      - "usr/lib/*/libgoa-1.0.so*"
       - "usr/lib/*/libarchive.so*"
