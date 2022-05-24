@@ -60,6 +60,8 @@ apps:
       - unity7
       - wayland
     desktop: usr/share/applications/org.gnome.Recipes.desktop
+    environment:
+      DISABLE_WAYLAND: 'true'
 
 parts:
   libcanberra:
