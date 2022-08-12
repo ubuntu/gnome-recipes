@@ -43,7 +43,7 @@ parts:
   gnome-online-accounts:
     source: https://gitlab.gnome.org/GNOME/gnome-online-accounts
     source-type: git
-    source-tag: '3.45.1'
+    source-tag: '3.45.2'
     plugin: meson
     meson-parameters:
       - --prefix=/usr
