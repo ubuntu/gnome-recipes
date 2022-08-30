@@ -63,9 +63,6 @@ parts:
     meson-parameters:
       - --prefix=/usr
       - --buildtype=release
-    override-pull: |
-      craftctl default
-      craftctl set version=$(git describe --tags --abbrev=10)
     build-packages:
       - libgnome-autoar-0-dev
       - libwebkit2gtk-4.1-dev
