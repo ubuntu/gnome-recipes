@@ -65,10 +65,8 @@ parts:
       - --buildtype=release
     build-packages:
       - libgnome-autoar-0-dev
-      - libwebkit2gtk-4.1-dev
     stage-packages:
       - libgnome-autoar-0-0
-      - libwebkit2gtk-4.1-0
 
 
   cleanup:
