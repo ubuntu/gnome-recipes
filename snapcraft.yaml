@@ -1,5 +1,6 @@
 name: gnome-recipes
-version: 2.0.2
+adopt-info: gnome-recipes
+base: core22
 summary: GNOME loves to cook
 description: |
   Recipes is an easy-to-use application that will help you to discover what to cook
@@ -18,26 +19,13 @@ description: |
     * Add notes to recipes
     * Hands-free cooking instruction mode
 
-grade: stable # must be 'stable' to release into candidate/stable channels
-confinement: strict
-base: core18
+  An easy-to-use application that will help you to discover what to cook
+  today, tomorrow, the rest of the week and for your special occasions.
 
-plugs:
-  gnome-3-28-1804:
-    interface: content
-    target: $SNAP/gnome-platform
-    default-provider: gnome-3-28-1804
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes
+grade: stable
+confinement: strict # use 'strict' once you have the right plugs and slots
 
 slots:
-  # for GtkApplication registration
   gnome-recipes:
     interface: dbus
     bus: session
@@ -45,100 +33,60 @@ slots:
 
 apps:
   gnome-recipes:
-    command: desktop-launch gnome-recipes
-    plugs:
-      - cups-control
-      - avahi-observe
-      - desktop
-      - desktop-legacy
-      - gsettings
-      - home
-      - mount-observe
-      - network
-      - pulseaudio
-      - screen-inhibit-control
-      - unity7
-      - wayland
-    desktop: usr/share/applications/org.gnome.Recipes.desktop
+    extensions: [gnome]
+    command: usr/bin/gnome-recipes
+    #plugs:
+    #  - mount-observe
+    #  - calendar-service
 
 parts:
-  libcanberra:
-    source: git://git.0pointer.de/libcanberra
+  gnome-online-accounts:
+    source: https://gitlab.gnome.org/GNOME/gnome-online-accounts
     source-type: git
-    plugin: autotools
-    configflags:
-      - --prefix=/snap/gnome-recipes/current/usr
-      - --enable-pulse
-      - --enable-gstreamer
-      - --enable-gtk3
-      - --enable-alsa
-      - --disable-oss
-    organize:
-      snap/gnome-recipes/current/usr: usr
+    source-tag: '3.45.2'
+    plugin: meson
+    meson-parameters:
+      - --prefix=/usr
+      - --buildtype=release
     build-packages:
-      - libltdl-dev
-      - libasound2-dev
-      - libvorbis-dev
-      - libgtk-3-dev
-      - libtdb-dev
-      - libpulse-dev
-      - libgstreamer1.0-dev
-      - gtk-doc-tools
-
-  desktop-gnome-platform:
-    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
-    source-subdir: gtk
-    plugin: make
-    make-parameters: ["FLAVOR=gtk3"]
-    build-packages:
-      - build-essential
-      - libgtk-3-dev
-    override-build: |
-      snapcraftctl build
-      mkdir -pv $SNAPCRAFT_PART_INSTALL/gnome-platform
+      - cmake
+      - libjavascriptcoregtk-4.1-dev
+      - libkrb5-dev
 
   gnome-recipes:
-    after: [desktop-gnome-platform, libcanberra]
-    # temporarily switch to tarball since gitsubmodule URL for 2.0.2
-    # no longer works
-    # source: https://gitlab.gnome.org/GNOME/recipes.git
-    # source-type: git
-    # source-tag: 2.0.2
-    source: https://download.gnome.org/sources/gnome-recipes/2.0/gnome-recipes-2.0.2.tar.xz
-    source-type: tar
-    override-build: |
-      sed -i.bak -e 's|=org.gnome.Recipes$|=${SNAP}/meta/gui/org.gnome.Recipes.png|g' data/org.gnome.Recipes.desktop.in
-      sed -i.bak -e 's|\])$|\], symlink_media: false)|g' help/meson.build
-      sed -i.bak -e 's|DATADIR|"/snap/gnome-recipes/current/usr/share"|g' src/gr-appdata.c
-      #sed -i.bak -e 's|.flatpak-info|meta/snap.yaml|g' src/gr-utils.c
-      snapcraftctl build
-      mkdir -p $SNAPCRAFT_PART_INSTALL/meta/gui/
-      cp ../src/data/icons/512x512/org.gnome.Recipes.png $SNAPCRAFT_PART_INSTALL/meta/gui/
-      cp ../install/snap/gnome-recipes/current/usr/share/applications/org.gnome.Recipes.desktop $SNAPCRAFT_PART_INSTALL/meta/gui/
+    after: [gnome-online-accounts]
+    source: https://github.com/GNOME/recipes.git
+    source-type: git
+    source-tag: '2.0.4'
     plugin: meson
-    meson-parameters: [--prefix=/snap/gnome-recipes/current/usr, -Dautoar=yes]
-    organize:
-      snap/gnome-recipes/current/usr: usr
+    parse-info: [usr/share/metainfo/org.gnome.Recipes.appdata.xml]
+    meson-parameters:
+      - --prefix=/usr
+      - --buildtype=release
     build-packages:
-      - gettext
-      - itstool
-      - libcanberra-dev
-      - libgirepository1.0-dev
-      - libgspell-1-dev
-      - libgoa-1.0-dev
-      - libgtk-3-dev
-      - libsoup-gnome2.4-dev
       - libgnome-autoar-0-dev
-      - libjson-glib-dev
-      - libxml2-utils
-  libraries:
-    plugin: nil
     stage-packages:
-      - iso-codes
       - libgnome-autoar-0-0
-      - libgoa-1.0-0b
-      - libarchive13
-    prime:
-      - "usr/lib/*/libgnome-autoar-0.so*"
-      - "usr/lib/*/libgoa-1.0.so*"
-      - "usr/lib/*/libarchive.so*"
+
+
+  cleanup:
+    after: [ gnome-recipes ]
+    plugin: nil
+    build-snaps: [core22, gtk-common-themes, gnome-42-2204]
+    override-prime: |
+      set -eux
+      for snap in "core22" "gtk-common-themes" "gnome-42-2204"; do
+        cd "/snap/$snap/current" && find . -type f,l -name *.so.* -exec rm -f "$CRAFT_PRIME/{}" \;
+      done
+      # remove cross-installed repeated libraries (in /usr/lib in the SDK, but in /usr/lib/TRIPLET
+      # here, and the opposite)
+      for snap in "core22" "gnome-42-2204"; do
+        cd "/snap/$snap/current/usr/lib"
+        for filename in [ *.so* ]; do
+          rm -f "$CRAFT_PRIME/usr/lib/$CRAFT_ARCH_TRIPLET/$filename"
+        done
+        cd "/snap/$snap/current/usr/lib/$CRAFT_ARCH_TRIPLET"
+        for filename in [ *.so* ]; do
+          rm -f "$CRAFT_PRIME/usr/lib/$filename"
+        done
+      done
