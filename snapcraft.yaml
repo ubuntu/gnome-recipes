@@ -41,9 +41,14 @@ apps:
 
 parts:
   gnome-online-accounts:
+# ext:updatesnap
+#   version-format:
+#     lower-than: '3.46'
+#     no-9x-revisions: true
     source: https://gitlab.gnome.org/GNOME/gnome-online-accounts
     source-type: git
     source-tag: '3.45.2'
+    source-depth: 1
     plugin: meson
     meson-parameters:
       - --prefix=/usr
@@ -54,6 +59,7 @@ parts:
       - libkrb5-dev
 
   gnome-recipes:
+# ext:updatesnap
     after: [gnome-online-accounts]
     source: https://github.com/GNOME/recipes.git
     source-type: git
