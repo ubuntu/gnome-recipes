@@ -35,6 +35,7 @@ apps:
   gnome-recipes:
     extensions: [gnome]
     command: usr/bin/gnome-recipes
+    desktop: usr/share/applications/org.gnome.Recipes.desktop
     #plugs:
     #  - mount-observe
     #  - calendar-service
