@@ -41,27 +41,28 @@ apps:
     #  - calendar-service
 
 parts:
-  gnome-online-accounts:
+  librest:
+    source: https://gitlab.gnome.org/GNOME/librest.git
+    source-tag: '0.8.1'
+    source-depth: 1
 # ext:updatesnap
 #   version-format:
-#     lower-than: '3.46'
-#     no-9x-revisions: true
-    source: https://gitlab.gnome.org/GNOME/gnome-online-accounts
-    source-type: git
-    source-tag: '3.45.2'
-    source-depth: 1
-    plugin: meson
-    meson-parameters:
+#     same-major: true
+#     same-minor: true
+    plugin: autotools
+    autotools-configure-parameters:
       - --prefix=/usr
-      - --buildtype=release
+      - --libdir=\${exec_prefix}/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR
     build-packages:
-      - cmake
-      - libjavascriptcoregtk-4.1-dev
-      - libkrb5-dev
+      - gtk-doc-tools
+      - libsoup2.4-dev
+      - libsoup-gnome2.4-dev
+    stage-packages:
+      - libsoup-2.4-1
+      - libsoup-gnome-2.4-1
 
   gnome-recipes:
-# ext:updatesnap
-    after: [gnome-online-accounts]
+    after: [librest]
     source: https://github.com/GNOME/recipes.git
     source-type: git
     source-tag: '2.0.4'
@@ -73,16 +74,23 @@ parts:
       - --buildtype=release
     build-packages:
       - libgnome-autoar-0-dev
+      - libsoup2.4-dev
+      - libsoup-gnome2.4-dev
+      - librest-dev
+      - libgoa-1.0-dev
     stage-packages:
       - libgnome-autoar-0-0
+      - libsoup-2.4-1
+      - libsoup-gnome-2.4-1
+      - librest-1.0-0
+      - libgoa-1.0-0b
     build-snaps:
       - gnome-46-2404-sdk/latest/candidate
-
 
   cleanup:
     after: [ gnome-recipes ]
     plugin: nil
-    build-snaps: [core24, gtk-common-themes, gnome-46-2404]
+    build-snaps: [core24, gtk-common-themes, gnome-46-2404/latest/candidate]
     override-prime: |
       set -eux
       for snap in "core24" "gtk-common-themes" "gnome-46-2404"; do
